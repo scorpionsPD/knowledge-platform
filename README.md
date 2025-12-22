@@ -2,6 +2,28 @@
 
 Monorepo (Next.js + Express) for running internal or cross-company knowledge-exchange sessions. MIT licensed.
 
+## Why this project exists
+
+Enterprise knowledge-sharing often happens informally, with valuable insights
+lost after one-off meetings or internal sessions. This project provides a
+lightweight, open platform to structure, document, and reuse knowledge-exchange
+sessions across teams or organisations — without tying it to recruitment,
+consulting, or commercial tooling.
+
+## High-level architecture
+
+[ Next.js Frontend ]
+        |
+        | REST API
+        v
+[ Express API ]
+        |
+        v
+[ Prisma ORM ]
+        |
+        v
+[ SQLite / PostgreSQL ]
+
 ## Tech stack
 - Frontend: Next.js (React, TypeScript)
 - Backend: Node.js + Express (TypeScript)
@@ -42,13 +64,21 @@ Monorepo (Next.js + Express) for running internal or cross-company knowledge-exc
 - Auth protected writes: POST/PUT routes require OAuth login (or `AUTH_DISABLED=true`).
 - Data: Prisma client with SQLite default; seed data via `npm run prisma:seed --workspace backend`.
 
-## Frontend (Next.js)
+  ## Frontend (Next.js)
 - Location: `frontend/`
 - App router with a landing page that fetches live sessions from the backend (falls back to demo data).
 - `NEXT_PUBLIC_API_URL` controls backend base URL.
 - Customize UI in `frontend/src/app/page.tsx` and styles in `frontend/src/app/globals.css`.
+  
 
-## Next steps
-- Expand APIs (invites, comments, attachments) and connect frontend forms to create/update endpoints.
-- Harden auth (session store, HTTPS cookies, role-based access) and add user persistence.
-- Add e2e tests plus CI/CD pipeline for deploy targets (Railway/Vercel/Fly).
+  ## Roadmap
+
+- Session invites and participant feedback
+- Role-based access for moderators and experts
+- Exportable knowledge summaries (Markdown / PDF)
+- Optional MDM / enterprise SSO integrations
+
+  # Contributing
+
+This project welcomes community feedback, issues, and pull requests.
+Please open an issue to discuss changes before submitting large PRs.

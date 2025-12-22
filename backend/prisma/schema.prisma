@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Session {
+  id               String          @id @default(uuid())
+  title            String
+  description      String
+  tags             Json
+  scheduledAt      DateTime
+  visibility       String
+  hostOrganisation String
+  summary          String?
+  outcomes         Json?
+  format           String?
+  location         String?
+  invites          SessionInvite[]
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+}
+
+model Expert {
+  id            String          @id @default(uuid())
+  name          String
+  title         String?
+  bio           String?
+  expertise     Json
+  contactEmail  String?
+  organisation  String?
+  sessions      SessionInvite[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
+
+model SessionInvite {
+  id        String   @id @default(uuid())
+  session   Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  sessionId String
+  expert    Expert   @relation(fields: [expertId], references: [id], onDelete: Cascade)
+  expertId  String
+  createdAt DateTime @default(now())
+
+  @@unique([sessionId, expertId])
+}

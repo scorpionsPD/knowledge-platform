@@ -47,7 +47,8 @@ if (isOAuthConfigured) {
             id,
             displayName: userinfo?.name || (profile as { displayName?: string })?.displayName || 'User',
             email: userinfo?.email,
-            raw: userinfo ?? profile
+            raw: userinfo ?? profile,
+            roles: ['member']
           });
         } catch (err) {
           return done(err as Error);

@@ -3,7 +3,7 @@ import { NextFunction, Request, Response } from 'express';
 export function requireAuth(req: Request, res: Response, next: NextFunction) {
   if (process.env.AUTH_DISABLED === 'true' || process.env.NODE_ENV === 'test') {
     if (!req.user) {
-      req.user = { id: 'dev-user', displayName: 'Dev User' };
+      req.user = { id: 'dev-user', displayName: 'Dev User', roles: ['admin'] };
     }
     return next();
   }

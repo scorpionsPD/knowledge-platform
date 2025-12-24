@@ -113,6 +113,9 @@ export default async function Home() {
               <a className="btn" href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/auth/login`}>
                 Connect SSO
               </a>
+              <a className="btn" href="/manage">
+                Manage sessions
+              </a>
             </div>
           </div>
           <div className="card">

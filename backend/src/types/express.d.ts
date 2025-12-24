@@ -7,6 +7,7 @@ declare module 'express-serve-static-core' {
       displayName: string;
       email?: string;
       raw?: unknown;
+      roles?: string[];
     };
     isAuthenticated?: () => boolean;
   }

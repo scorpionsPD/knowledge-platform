@@ -1,8 +1,10 @@
 import cors from 'cors';
 import express from 'express';
 import session from 'express-session';
+import connectPgSimple from 'connect-pg-simple';
 import morgan from 'morgan';
 import passport from 'passport';
+import { Pool } from 'pg';
 
 import { authRouter } from './auth';
 import expertsRouter from './routes/experts';
@@ -23,13 +25,26 @@ app.use(morgan('dev'));
 app.use(express.json());
 
 const sessionSecret = process.env.SESSION_SECRET || 'change-me';
+const PgSession = connectPgSimple(session);
+const pgPool = new Pool({
+  connectionString: process.env.DATABASE_URL || 'postgres://postgres:postgres@localhost:5432/knowledge_platform'
+});
+
 app.use(
   session({
+    store: new PgSession({
+      pool: pgPool,
+      tableName: 'user_sessions',
+      createTableIfMissing: true
+    }),
     secret: sessionSecret,
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: false
+      secure: false,
+      httpOnly: true,
+      sameSite: 'lax',
+      maxAge: 1000 * 60 * 60 * 24 * 7
     }
   })
 );

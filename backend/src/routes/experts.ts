@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 import prisma from '../prisma';
 import { requireAuth } from '../middleware/requireAuth';
+import { requireRole } from '../middleware/requireRole';
 
 const expertSchema = z.object({
   name: z.string().min(3),
@@ -42,7 +43,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.post('/', requireAuth, async (req, res) => {
+router.post('/', requireAuth, requireRole(['admin', 'editor']), async (req, res) => {
   const parseResult = expertSchema.safeParse(req.body);
   if (!parseResult.success) {
     return res.status(400).json({ message: 'Invalid payload', errors: parseResult.error.flatten() });
@@ -63,7 +64,7 @@ router.post('/', requireAuth, async (req, res) => {
   }
 });
 
-router.put('/:id', requireAuth, async (req, res) => {
+router.put('/:id', requireAuth, requireRole(['admin', 'editor']), async (req, res) => {
   const parseResult = expertSchema.partial().safeParse(req.body);
   if (!parseResult.success) {
     return res.status(400).json({ message: 'Invalid payload', errors: parseResult.error.flatten() });

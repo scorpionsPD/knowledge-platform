@@ -1,3 +1,5 @@
+import { InstallCTA } from './components/InstallCTA';
+
 type Expert = {
   id?: string;
   name: string;
@@ -116,6 +118,7 @@ export default async function Home() {
               <a className="btn" href="/manage">
                 Manage sessions
               </a>
+              <InstallCTA />
             </div>
           </div>
           <div className="card">

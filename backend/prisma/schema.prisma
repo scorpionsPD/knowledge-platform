@@ -20,8 +20,20 @@ model Session {
   format           String?
   location         String?
   invites          SessionInvite[]
+  participantInvites SessionParticipantInvite[]
+  feedback          SessionFeedback[]
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
+}
+
+model User {
+  id          String   @id @default(uuid())
+  externalId  String   @unique
+  displayName String
+  email       String?  @unique
+  roles       String[] @default(["member"])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Expert {
@@ -46,4 +58,28 @@ model SessionInvite {
   createdAt DateTime @default(now())
 
   @@unique([sessionId, expertId])
+}
+
+model SessionParticipantInvite {
+  id        String   @id @default(uuid())
+  session   Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  sessionId String
+  email     String
+  name      String?
+  status    String   @default("pending")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([sessionId, email])
+}
+
+model SessionFeedback {
+  id          String   @id @default(uuid())
+  session     Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  sessionId   String
+  authorName  String?
+  authorEmail String?
+  rating      Int?
+  comment     String?
+  createdAt   DateTime @default(now())
 }

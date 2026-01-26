@@ -91,6 +91,12 @@ main {
   gap: 28px;
 }
 
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
 .hero h1 {
   font-size: clamp(32px, 5vw, 52px);
   margin: 0 0 12px;

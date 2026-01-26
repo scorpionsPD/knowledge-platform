@@ -8,8 +8,11 @@ import { Pool } from 'pg';
 
 import { authRouter } from './auth';
 import expertsRouter from './routes/experts';
+import feedbackRouter from './routes/feedback';
+import invitesRouter from './routes/invites';
 import reportsRouter from './routes/reports';
 import sessionsRouter from './routes/sessions';
+import usersRouter from './routes/users';
 
 const app = express();
 
@@ -57,6 +60,9 @@ app.use('/auth', authRouter);
 app.use('/api/sessions', sessionsRouter);
 app.use('/api/experts', expertsRouter);
 app.use('/api/reports', reportsRouter);
+app.use('/api/users', usersRouter);
+app.use('/api/invites', invitesRouter);
+app.use('/api/feedback', feedbackRouter);
 
 app.use((_req, res) => {
   res.status(404).json({ message: 'Not found' });

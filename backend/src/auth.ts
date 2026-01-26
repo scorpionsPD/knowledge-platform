@@ -2,6 +2,8 @@ import passport from 'passport';
 import { Strategy as OAuth2Strategy, InternalOAuthError } from 'passport-oauth2';
 import { Router } from 'express';
 
+import prisma from './prisma';
+
 const authRouter = Router();
 
 const {
@@ -42,14 +44,22 @@ if (isOAuthConfigured) {
             }
             userinfo = (await resp.json()) as typeof userinfo;
           }
-          const id = userinfo?.sub ?? (profile as { id?: string })?.id ?? 'unknown';
-          return done(null, {
-            id,
-            displayName: userinfo?.name || (profile as { displayName?: string })?.displayName || 'User',
-            email: userinfo?.email,
-            raw: userinfo ?? profile,
-            roles: ['member']
+          const externalId = userinfo?.sub ?? (profile as { id?: string })?.id ?? 'unknown';
+          const displayName =
+            userinfo?.name || (profile as { displayName?: string })?.displayName || 'User';
+          const email = userinfo?.email;
+          const isFirstUser = (await prisma.user.count()) === 0;
+          const user = await prisma.user.upsert({
+            where: { externalId },
+            update: { displayName, email },
+            create: {
+              externalId,
+              displayName,
+              email,
+              roles: isFirstUser ? ['admin'] : ['member']
+            }
           });
+          return done(null, user);
         } catch (err) {
           return done(err as Error);
         }
@@ -58,11 +68,17 @@ if (isOAuthConfigured) {
   );
 
   passport.serializeUser((user, done) => {
-    done(null, user);
+    done(null, { id: (user as { id: string }).id });
   });
 
-  passport.deserializeUser((obj: Express.User, done) => {
-    done(null, obj);
+  passport.deserializeUser(async (obj: { id?: string }, done) => {
+    try {
+      if (!obj?.id) return done(null, false);
+      const user = await prisma.user.findUnique({ where: { id: obj.id } });
+      return done(null, user ?? false);
+    } catch (err) {
+      return done(err as Error);
+    }
   });
 
   authRouter.get('/login', passport.authenticate('oauth2'));

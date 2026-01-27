@@ -417,9 +417,6 @@ This project demonstrates:
 ✅ **Professional Practice:** Testing, documentation, DevOps, code quality  
 ✅ **Leadership:** Architecture decisions, mentorship through documentation  
 
-**Evidence Category:** Global Talent Visa - Digital Technology  
-**Claim:** Exceptional Talent in software engineering and system architecture
-
 ---
 
 **Compiled:** January 2026  

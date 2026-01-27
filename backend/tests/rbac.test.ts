@@ -11,11 +11,18 @@ const prisma = new PrismaClient();
  * Tests different user roles and their permissions
  */
 describe('RBAC Integration Tests', () => {
-  let adminUserId: string;
-  let editorUserId: string;
-  let memberUserId: string;
+  let adminUserId: string | undefined;
+  let editorUserId: string | undefined;
+  let memberUserId: string | undefined;
 
   beforeAll(async () => {
+    // Clean up any existing test data first
+    await prisma.user.deleteMany({
+      where: {
+        externalId: { in: ['test-admin', 'test-editor', 'test-member'] }
+      }
+    });
+
     // Create test users with different roles
     const admin = await prisma.user.create({
       data: {
@@ -50,11 +57,13 @@ describe('RBAC Integration Tests', () => {
 
   afterAll(async () => {
     // Clean up test data
-    await prisma.user.deleteMany({
-      where: {
-        id: { in: [adminUserId, editorUserId, memberUserId] }
-      }
-    });
+    if (adminUserId || editorUserId || memberUserId) {
+      await prisma.user.deleteMany({
+        where: {
+          id: { in: [adminUserId, editorUserId, memberUserId].filter(Boolean) as string[] }
+        }
+      });
+    }
     await prisma.$disconnect();
   });
 

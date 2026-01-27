@@ -44,7 +44,7 @@ router.get(
   })
 );
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', validateUUID('id'), async (req, res) => {
   try {
     const isAuthed = typeof req.isAuthenticated === 'function' && req.isAuthenticated();
     const session = await prisma.session.findUnique({
@@ -73,15 +73,15 @@ router.post('/', requireAuth, requireRole(['admin', 'editor']), async (req, res)
   if (!parseResult.success) {
     return res.status(400).json({ message: 'Invalid payload', errors: parseResult.error.flatten() });
   }
-  const data = parseResult.data;
+  const { invitedExperts, ...sessionData } = parseResult.data;
   try {
     const session = await prisma.session.create({
       data: {
-        ...data,
-        tags: data.tags,
-        outcomes: data.outcomes ?? [],
+        ...sessionData,
+        tags: sessionData.tags,
+        outcomes: sessionData.outcomes ?? [],
         invites: {
-          create: data.invitedExperts.map((expertId) => ({ expert: { connect: { id: expertId } } }))
+          create: invitedExperts.map((expertId) => ({ expert: { connect: { id: expertId } } }))
         }
       },
       include: sessionInclude

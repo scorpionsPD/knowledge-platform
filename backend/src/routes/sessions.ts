@@ -41,12 +41,8 @@ router.get(
       invitedExperts: session.invites.map((invite) => invite.expert)
     }));
     res.json(shaped);
-  } catch (err) {
-    // eslint-disable-next-line no-console
-    console.error(err);
-    res.status(500).json({ message: 'Failed to fetch sessions' });
-  }
-});
+  })
+);
 
 router.get('/:id', async (req, res) => {
   try {

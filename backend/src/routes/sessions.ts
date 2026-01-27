@@ -29,12 +29,51 @@ router.get(
   '/',
   asyncHandler(async (req, res) => {
     const isAuthed = typeof req.isAuthenticated === 'function' && req.isAuthenticated();
+    
+    // Extract query parameters
+    const { search, tags, visibility, from, to } = req.query;
+    
+    // Build where clause
+    const where: any = isAuthed ? {} : { visibility: 'public' };
+    
+    // Add search filter (searches title and description)
+    if (search && typeof search === 'string') {
+      where.OR = [
+        { title: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+    
+    // Add visibility filter (if provided and user is authed)
+    if (visibility && typeof visibility === 'string' && isAuthed) {
+      where.visibility = visibility;
+    }
+    
+    // Add date range filters
+    if (from && typeof from === 'string') {
+      where.scheduledAt = { ...where.scheduledAt, gte: new Date(from) };
+    }
+    if (to && typeof to === 'string') {
+      where.scheduledAt = { ...where.scheduledAt, lte: new Date(to) };
+    }
+    
     const sessions = await prisma.session.findMany({
-      where: isAuthed ? {} : { visibility: 'public' },
+      where,
       include: sessionInclude,
       orderBy: { scheduledAt: 'asc' }
     });
-    const shaped = sessions.map((session) => ({
+    
+    // Filter by tags in memory (since tags is a JSON field)
+    let filteredSessions = sessions;
+    if (tags && typeof tags === 'string') {
+      const tagArray = tags.split(',').map(t => t.trim().toLowerCase());
+      filteredSessions = sessions.filter(session => {
+        const sessionTags = ((session.tags as string[]) ?? []).map(t => t.toLowerCase());
+        return tagArray.some(tag => sessionTags.includes(tag));
+      });
+    }
+    
+    const shaped = filteredSessions.map((session) => ({
       ...session,
       tags: (session.tags as string[]) ?? [],
       outcomes: (session.outcomes as string[]) ?? [],

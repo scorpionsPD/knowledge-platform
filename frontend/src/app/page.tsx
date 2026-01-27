@@ -1,103 +1,131 @@
-import { InstallCTA } from './components/InstallCTA';
-
-type Expert = {
-  id?: string;
-  name: string;
-  title?: string;
-};
-
-type Session = {
-  id?: string;
-  title: string;
-  description?: string;
-  tags: string[];
-  scheduledAt?: string;
-  visibility: string;
-  invitedExperts?: Expert[];
-};
-
-const fallbackSessions: Session[] = [
-  {
-    title: 'Zero Trust in Hybrid Clouds',
-    description: 'Designing secure access for multi-cloud environments.',
-    tags: ['Security', 'Architecture'],
-    scheduledAt: new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString(),
-    visibility: 'private',
-    invitedExperts: [{ name: 'Alex Rivera' }]
-  },
-  {
-    title: 'AI Safety for Mobile Clients',
-    description: 'Mitigating prompt injection and misuse in on-device models.',
-    tags: ['AI', 'Mobile'],
-    scheduledAt: new Date(Date.now() + 14 * 24 * 3600 * 1000).toISOString(),
-    visibility: 'public',
-    invitedExperts: [{ name: 'Priya Nair' }]
-  },
-  {
-    title: 'Platform Observability Playbook',
-    description: 'Patterns for telemetry, SLIs, and incident readiness.',
-    tags: ['Platform', 'Reliability'],
-    scheduledAt: new Date(Date.now() + 21 * 24 * 3600 * 1000).toISOString(),
-    visibility: 'private',
-    invitedExperts: [{ name: 'Guest TBD' }]
-  }
-];
+import Link from 'next/link';
+import styles from './page.module.css';
+import SessionCard from './components/SessionCard';
+import { Session } from '@/types';
 
 async function getSessions(): Promise<Session[]> {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
   try {
-    const res = await fetch(`${apiUrl}/api/sessions`, { next: { revalidate: 30 } });
-    if (!res.ok) throw new Error(`Failed to fetch sessions: ${res.status}`);
-    return res.json();
-  } catch (err) {
-    console.error('Falling back to demo sessions', err);
-    return fallbackSessions;
+    const res = await fetch('http://localhost:4000/api/sessions', {
+      cache: 'no-store',
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.slice(0, 3); // Get first 3 sessions
+  } catch (error) {
+    console.error('Error fetching sessions:', error);
+    return [];
   }
 }
-
-const features = [
-  {
-    title: 'Session creation & publishing',
-    copy: 'Structured drafts, taggable topics, and templated outcomes to keep every exchange consistent.'
-  },
-  {
-    title: 'Invite external experts',
-    copy: 'Lightweight guest intake with bios, expertise tags, and optional NDAs for cross-company sessions.'
-  },
-  {
-    title: 'Public or private visibility',
-    copy: 'Run internal-only learning forums or publish a curated public stream with automated redaction.'
-  },
-  {
-    title: 'Exportable reports',
-    copy: 'One-click Markdown or PDF summaries with highlights, decisions, and follow-up owners.'
-  }
-];
-
-const exportsList = [
-  'Markdown report for async catch-up',
-  'PDF handout for stakeholders',
-  'CSV/JSON for analytics backfills'
-];
 
 export default async function Home() {
   const sessions = await getSessions();
 
   return (
-    <main>
-      <div className="shell">
-        <header className="header">
-          <div className="mark">
-            <span>⎯⎯</span> Knowledge Exchange
+    <main className={styles.main}>
+      <section className={styles.hero}>
+        <div className={styles.heroContent}>
+          <h1 className={styles.title}>
+            Enterprise Knowledge
+            <br />
+            <span className={styles.gradient}>Management Platform</span>
+          </h1>
+          <p className={styles.subtitle}>
+            Facilitate expert-led learning sessions with advanced role-based access control,
+            OAuth integration, and comprehensive security features.
+          </p>
+          <div className={styles.cta}>
+            <Link href="/sessions" className={styles.primaryButton}>
+              Browse Sessions →
+            </Link>
+            <Link href="/experts" className={styles.secondaryButton}>
+              View Experts
+            </Link>
           </div>
-          <div className="pill">
-            <span>MIT Licensed</span>
-            <span>•</span>
-            <span>Node + Next</span>
-          </div>
-        </header>
+        </div>
+      </section>
 
-        <section className="hero">
+      <section className={styles.features}>
+        <div className={styles.container}>
+          <h2 className={styles.sectionTitle}>Key Features</h2>
+          <div className={styles.featuresGrid}>
+            <div className={styles.feature}>
+              <div className={styles.featureIcon}>🔐</div>
+              <h3>Advanced RBAC</h3>
+              <p>Three-tier role system with fine-grained permissions</p>
+            </div>
+            <div className={styles.feature}>
+              <div className={styles.featureIcon}>📅</div>
+              <h3>Session Management</h3>
+              <p>Create, schedule, and manage knowledge sessions</p>
+            </div>
+            <div className={styles.feature}>
+              <div className={styles.featureIcon}>👥</div>
+              <h3>Expert Network</h3>
+              <p>Connect with leading experts across domains</p>
+            </div>
+            <div className={styles.feature}>
+              <div className={styles.featureIcon}>⭐</div>
+              <h3>Feedback System</h3>
+              <p>Collect and analyze session feedback</p>
+            </div>
+            <div className={styles.feature}>
+              <div className={styles.featureIcon}>🔒</div>
+              <h3>Enterprise Security</h3>
+              <p>Rate limiting, input sanitization, CSRF protection</p>
+            </div>
+            <div className={styles.feature}>
+              <div className={styles.featureIcon}>📊</div>
+              <h3>Analytics</h3>
+              <p>Track participation and outcomes</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {sessions.length > 0 && (
+        <section className={styles.recentSessions}>
+          <div className={styles.container}>
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitle}>Upcoming Sessions</h2>
+              <Link href="/sessions" className={styles.viewAll}>
+                View All Sessions →
+              </Link>
+            </div>
+            <div className={styles.sessionsGrid}>
+              {sessions.map((session) => (
+                <SessionCard key={session.id} session={session} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      <section className={styles.techStack}>
+        <div className={styles.container}>
+          <h2 className={styles.sectionTitle}>Built With Modern Tech</h2>
+          <div className={styles.techGrid}>
+            <div className={styles.tech}>
+              <strong>Frontend</strong>
+              <span>Next.js 14, TypeScript, React</span>
+            </div>
+            <div className={styles.tech}>
+              <strong>Backend</strong>
+              <span>Express.js, Node.js, Prisma ORM</span>
+            </div>
+            <div className={styles.tech}>
+              <strong>Database</strong>
+              <span>PostgreSQL 14+</span>
+            </div>
+            <div className={styles.tech}>
+              <strong>Security</strong>
+              <span>OAuth2, RBAC, Rate Limiting</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  );
+}
           <div>
             <p className="pill">Open Enterprise Knowledge Exchange Platform</p>
             <h1>Run learning forums with the polish of a conference, minus the overhead.</h1>

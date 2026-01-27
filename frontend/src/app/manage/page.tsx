@@ -47,6 +47,14 @@ type SessionFeedback = {
   session?: { id: string; title: string };
 };
 
+type RoleMapping = {
+  id: string;
+  email?: string;
+  domain?: string;
+  roles: string[];
+  createdAt: string;
+};
+
 const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 export default function Manage() {
@@ -55,11 +63,13 @@ export default function Manage() {
   const [users, setUsers] = useState<User[]>([]);
   const [invites, setInvites] = useState<SessionInvite[]>([]);
   const [feedback, setFeedback] = useState<SessionFeedback[]>([]);
+  const [roleMappings, setRoleMappings] = useState<RoleMapping[]>([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [userMessage, setUserMessage] = useState<string | null>(null);
   const [inviteMessage, setInviteMessage] = useState<string | null>(null);
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
+  const [roleMappingMessage, setRoleMappingMessage] = useState<string | null>(null);
   const [form, setForm] = useState({
     title: '',
     description: '',
@@ -76,6 +86,11 @@ export default function Manage() {
     email: '',
     name: ''
   });
+  const [roleMappingForm, setRoleMappingForm] = useState({
+    email: '',
+    domain: '',
+    roles: ['member'] as string[]
+  });
 
   const selectedExperts = useMemo(
     () => experts.filter((e) => form.invitedExpertIds.includes(e.id)),
@@ -87,13 +102,22 @@ export default function Manage() {
     setUserMessage(null);
     setInviteMessage(null);
     setFeedbackMessage(null);
+    setRoleMappingMessage(null);
     try {
-      const [expertsRes, sessionsRes, usersRes, invitesRes, feedbackRes] = await Promise.all([
+      const [
+        expertsRes,
+        sessionsRes,
+        usersRes,
+        invitesRes,
+        feedbackRes,
+        roleMappingsRes
+      ] = await Promise.all([
         fetch(`${apiBase}/api/experts`, { credentials: 'include' }),
         fetch(`${apiBase}/api/sessions`, { credentials: 'include' }),
         fetch(`${apiBase}/api/users`, { credentials: 'include' }),
         fetch(`${apiBase}/api/invites`, { credentials: 'include' }),
-        fetch(`${apiBase}/api/feedback`, { credentials: 'include' })
+        fetch(`${apiBase}/api/feedback`, { credentials: 'include' }),
+        fetch(`${apiBase}/api/role-mappings`, { credentials: 'include' })
       ]);
       if (expertsRes.ok) setExperts(await expertsRes.json());
       if (sessionsRes.ok) setSessions(await sessionsRes.json());
@@ -123,6 +147,15 @@ export default function Manage() {
       } else {
         setFeedback([]);
         setFeedbackMessage('Failed to load feedback.');
+      }
+      if (roleMappingsRes.ok) {
+        setRoleMappings(await roleMappingsRes.json());
+      } else if (roleMappingsRes.status === 401 || roleMappingsRes.status === 403) {
+        setRoleMappings([]);
+        setRoleMappingMessage('Role mappings require admin access.');
+      } else {
+        setRoleMappings([]);
+        setRoleMappingMessage('Failed to load role mappings.');
       }
     } catch (err) {
       console.error(err);
@@ -272,6 +305,73 @@ export default function Manage() {
       setInviteMessage('Invite updated.');
     } catch (err: any) {
       setInviteMessage(err.message || 'Error updating invite');
+    }
+  };
+
+  const handleRoleMappingSubmit = async (event: FormEvent) => {
+    event.preventDefault();
+    setRoleMappingMessage(null);
+    const payload = {
+      email: roleMappingForm.email || undefined,
+      domain: roleMappingForm.domain || undefined,
+      roles: roleMappingForm.roles
+    };
+    try {
+      const res = await fetch(`${apiBase}/api/role-mappings`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || 'Failed to create role mapping');
+      }
+      const created = (await res.json()) as RoleMapping;
+      setRoleMappings((prev) => [created, ...prev]);
+      setRoleMappingForm({ email: '', domain: '', roles: ['member'] });
+      setRoleMappingMessage('Role mapping created.');
+    } catch (err: any) {
+      setRoleMappingMessage(err.message || 'Error creating role mapping');
+    }
+  };
+
+  const handleRoleMappingUpdate = async (mappingId: string, roles: string[]) => {
+    setRoleMappingMessage(null);
+    try {
+      const res = await fetch(`${apiBase}/api/role-mappings/${mappingId}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ roles })
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || 'Failed to update role mapping');
+      }
+      const updated = (await res.json()) as RoleMapping;
+      setRoleMappings((prev) => prev.map((m) => (m.id === mappingId ? updated : m)));
+      setRoleMappingMessage('Role mapping updated.');
+    } catch (err: any) {
+      setRoleMappingMessage(err.message || 'Error updating role mapping');
+    }
+  };
+
+  const handleRoleMappingDelete = async (mappingId: string) => {
+    setRoleMappingMessage(null);
+    try {
+      const res = await fetch(`${apiBase}/api/role-mappings/${mappingId}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      if (!res.ok && res.status !== 204) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || 'Failed to delete role mapping');
+      }
+      setRoleMappings((prev) => prev.filter((mapping) => mapping.id !== mappingId));
+      setRoleMappingMessage('Role mapping deleted.');
+    } catch (err: any) {
+      setRoleMappingMessage(err.message || 'Error deleting role mapping');
     }
   };
 
@@ -486,6 +586,73 @@ export default function Manage() {
                 )}
               </div>
             </div>
+            <div className="card">
+              <h3>Role mappings</h3>
+              <p className="muted">Auto-assign roles based on email or domain.</p>
+              <form className="card" onSubmit={handleRoleMappingSubmit}>
+                <label>
+                  Email (optional)
+                  <input
+                    type="email"
+                    value={roleMappingForm.email}
+                    onChange={(e) =>
+                      setRoleMappingForm({ ...roleMappingForm, email: e.target.value })
+                    }
+                  />
+                </label>
+                <label>
+                  Domain (optional)
+                  <input
+                    value={roleMappingForm.domain}
+                    onChange={(e) =>
+                      setRoleMappingForm({ ...roleMappingForm, domain: e.target.value })
+                    }
+                  />
+                </label>
+                <label>
+                  Roles
+                  <div className="tag-row">
+                    {['admin', 'editor', 'member'].map((role) => {
+                      const active = roleMappingForm.roles.includes(role);
+                      return (
+                        <button
+                          key={role}
+                          type="button"
+                          className={`btn ${active ? 'primary' : ''}`}
+                          onClick={() => {
+                            setRoleMappingForm((prev) => ({
+                              ...prev,
+                              roles: active
+                                ? prev.roles.filter((r) => r !== role)
+                                : [...prev.roles, role]
+                            }));
+                          }}
+                        >
+                          {role}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </label>
+                <button className="btn primary" type="submit" disabled={loading}>
+                  {loading ? 'Working...' : 'Create mapping'}
+                </button>
+              </form>
+              {roleMappingMessage && <p className="muted">{roleMappingMessage}</p>}
+              <div className="list">
+                {roleMappings.map((mapping) => (
+                  <RoleMappingEditor
+                    key={mapping.id}
+                    mapping={mapping}
+                    onSave={handleRoleMappingUpdate}
+                    onDelete={handleRoleMappingDelete}
+                  />
+                ))}
+                {roleMappings.length === 0 && !roleMappingMessage && (
+                  <p className="muted">No role mappings yet.</p>
+                )}
+              </div>
+            </div>
           </div>
         </section>
       </div>
@@ -642,6 +809,77 @@ function FeedbackCard({ entry }: { entry: SessionFeedback }) {
       </p>
       {typeof entry.rating === 'number' && <p className="muted">Rating: {entry.rating} / 5</p>}
       {entry.comment && <p className="muted">{entry.comment}</p>}
+    </article>
+  );
+}
+
+function RoleMappingEditor({
+  mapping,
+  onSave,
+  onDelete
+}: {
+  mapping: RoleMapping;
+  onSave: (mappingId: string, roles: string[]) => Promise<void>;
+  onDelete: (mappingId: string) => Promise<void>;
+}) {
+  const [roles, setRoles] = useState<string[]>(mapping.roles);
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    setRoles(mapping.roles);
+  }, [mapping.roles]);
+
+  return (
+    <article className="report">
+      <h4>{mapping.email || mapping.domain || 'Role mapping'}</h4>
+      <p className="muted">
+        {mapping.email ? `Email: ${mapping.email}` : 'Email: —'} |{' '}
+        {mapping.domain ? `Domain: ${mapping.domain}` : 'Domain: —'}
+      </p>
+      <div className="tag-row">
+        {['admin', 'editor', 'member'].map((role) => {
+          const active = roles.includes(role);
+          return (
+            <button
+              key={role}
+              type="button"
+              className={`btn ${active ? 'primary' : ''}`}
+              onClick={() => {
+                setRoles((prev) => (active ? prev.filter((r) => r !== role) : [...prev, role]));
+              }}
+            >
+              {role}
+            </button>
+          );
+        })}
+      </div>
+      <div className="cta-row">
+        <button
+          className="btn primary"
+          type="button"
+          disabled={saving}
+          onClick={async () => {
+            setSaving(true);
+            await onSave(mapping.id, roles);
+            setSaving(false);
+          }}
+        >
+          {saving ? 'Saving...' : 'Save roles'}
+        </button>
+        <button
+          className="btn"
+          type="button"
+          disabled={deleting}
+          onClick={async () => {
+            setDeleting(true);
+            await onDelete(mapping.id);
+            setDeleting(false);
+          }}
+        >
+          {deleting ? 'Deleting...' : 'Delete'}
+        </button>
+      </div>
     </article>
   );
 }

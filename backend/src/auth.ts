@@ -6,6 +6,44 @@ import prisma from './prisma';
 
 const authRouter = Router();
 
+const allowedRoles = new Set(['admin', 'editor', 'member']);
+
+function normalizeEmail(email?: string | null) {
+  if (!email) return null;
+  const trimmed = email.trim().toLowerCase();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+function getDomain(email?: string | null) {
+  if (!email) return null;
+  const atIndex = email.indexOf('@');
+  if (atIndex === -1) return null;
+  return email.slice(atIndex + 1);
+}
+
+async function resolveRoleMappings(email?: string | null) {
+  const normalized = normalizeEmail(email);
+  const domain = getDomain(normalized);
+  if (!normalized && !domain) return [];
+
+  const mappings = await prisma.roleMapping.findMany({
+    where: {
+      OR: [
+        normalized ? { email: normalized } : undefined,
+        domain ? { domain } : undefined
+      ].filter(Boolean) as Array<{ email?: string; domain?: string }>
+    }
+  });
+
+  const roles = new Set<string>();
+  for (const mapping of mappings) {
+    for (const role of mapping.roles) {
+      if (allowedRoles.has(role)) roles.add(role);
+    }
+  }
+  return Array.from(roles);
+}
+
 const {
   OAUTH_CLIENT_ID,
   OAUTH_CLIENT_SECRET,
@@ -47,16 +85,21 @@ if (isOAuthConfigured) {
           const externalId = userinfo?.sub ?? (profile as { id?: string })?.id ?? 'unknown';
           const displayName =
             userinfo?.name || (profile as { displayName?: string })?.displayName || 'User';
-          const email = userinfo?.email;
+          const email = normalizeEmail(userinfo?.email);
+          const mappedRoles = await resolveRoleMappings(email);
           const isFirstUser = (await prisma.user.count()) === 0;
+          const existingUser = await prisma.user.findUnique({ where: { externalId } });
+          const baseRoles =
+            existingUser?.roles ?? (isFirstUser ? ['admin'] : ['member']);
+          const roles = Array.from(new Set([...baseRoles, ...mappedRoles]));
           const user = await prisma.user.upsert({
             where: { externalId },
-            update: { displayName, email },
+            update: { displayName, email, roles },
             create: {
               externalId,
               displayName,
               email,
-              roles: isFirstUser ? ['admin'] : ['member']
+              roles: roles.length > 0 ? roles : ['member']
             }
           });
           return done(null, user);

@@ -4,6 +4,8 @@ import { z } from 'zod';
 import prisma from '../prisma';
 import { requireAuth } from '../middleware/requireAuth';
 import { requireRole } from '../middleware/requireRole';
+import { asyncHandler, ApiError } from '../middleware/errorHandler';
+import { validateUUID } from '../middleware/validation';
 
 const sessionSchema = z.object({
   title: z.string().min(3),
@@ -23,8 +25,9 @@ const router = Router();
 
 const sessionInclude = { invites: { include: { expert: true } } };
 
-router.get('/', async (req, res) => {
-  try {
+router.get(
+  '/',
+  asyncHandler(async (req, res) => {
     const isAuthed = typeof req.isAuthenticated === 'function' && req.isAuthenticated();
     const sessions = await prisma.session.findMany({
       where: isAuthed ? {} : { visibility: 'public' },

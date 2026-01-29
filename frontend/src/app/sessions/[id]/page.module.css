@@ -1,0 +1,231 @@
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2.75rem 2rem 4rem;
+}
+
+.back {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 0.875rem;
+  margin-bottom: 1.5rem;
+  display: inline-block;
+}
+
+.back:hover {
+  text-decoration: underline;
+}
+
+.header {
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--panel-border);
+}
+
+.title {
+  font-size: 2.75rem;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0 0 1rem 0;
+  letter-spacing: -0.02em;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  font-size: 1rem;
+  color: var(--muted);
+}
+
+.badge {
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.badge.public {
+  background: rgba(16, 185, 129, 0.18);
+  color: #86efac;
+  border: 1px solid rgba(16, 185, 129, 0.45);
+}
+
+.badge.private {
+  background: rgba(245, 158, 11, 0.18);
+  color: #fde68a;
+  border: 1px solid rgba(245, 158, 11, 0.45);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.section {
+  background: var(--panel);
+  border-radius: 16px;
+  padding: 2rem;
+  border: 1px solid var(--panel-border);
+  box-shadow: var(--shadow);
+}
+
+.section h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 1rem 0;
+}
+
+.section h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 1.5rem 0 0.75rem 0;
+}
+
+.description {
+  font-size: 1.125rem;
+  line-height: 1.8;
+  color: var(--muted);
+  margin: 0;
+}
+
+.info {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: rgba(8, 12, 20, 0.7);
+  border-radius: 10px;
+  border: 1px solid var(--panel-border);
+  color: var(--muted);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tag {
+  background: rgba(34, 211, 238, 0.12);
+  color: #67e8f9;
+  padding: 0.45rem 1rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1px solid rgba(34, 211, 238, 0.35);
+}
+
+.experts {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.expert {
+  display: flex;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: rgba(10, 14, 22, 0.65);
+  border-radius: 12px;
+  border: 1px solid var(--panel-border);
+}
+
+.expertAvatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-warm) 100%);
+  color: #001018;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.expertInfo h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 0.25rem 0;
+}
+
+.expertInfo p {
+  color: var(--muted);
+  margin: 0 0 0.75rem 0;
+}
+
+.expertise {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.skillTag {
+  background: rgba(34, 211, 238, 0.12);
+  color: #67e8f9;
+  border: 1px solid rgba(34, 211, 238, 0.3);
+  padding: 0.3rem 0.7rem;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.linkedin {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.linkedin:hover {
+  text-decoration: underline;
+}
+
+.outcomes {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.outcomes li {
+  padding: 0.75rem 0;
+  padding-left: 2rem;
+  position: relative;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.outcomes li:before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+.feedbackButton {
+  background: linear-gradient(135deg, var(--accent-strong) 0%, var(--accent) 45%, var(--accent-warm) 100%);
+  color: #001018;
+  border: none;
+  padding: 0.85rem 1.75rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 10px 26px rgba(6, 182, 212, 0.35);
+}
+
+.feedbackButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 34px rgba(245, 158, 11, 0.35);
+}

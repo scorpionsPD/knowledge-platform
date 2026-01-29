@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import styles from './page.module.css';
-import { Session } from '../../types';
+import { Session } from '@/types';
 
 export default function FeedbackPage({ params }: { params: { sessionId: string } }) {
   const router = useRouter();

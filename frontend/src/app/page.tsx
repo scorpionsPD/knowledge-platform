@@ -1,11 +1,11 @@
 import Link from 'next/link';
 import styles from './page.module.css';
 import SessionCard from './components/SessionCard';
-import { Session } from '../types';
+import { Session } from '@/types';
 
-async function getSessions(): Promise<Session[]> {
+async function getRecentSessions(): Promise<Session[]> {
   try {
-    const res = await fetch('http://127.0.0.1:4000/api/sessions', {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000'}/api/sessions`, {
       cache: 'no-store',
     });
     if (!res.ok) return [];

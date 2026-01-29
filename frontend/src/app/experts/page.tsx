@@ -1,10 +1,10 @@
 import Link from 'next/link';
 import styles from './page.module.css';
-import { Expert } from '../types';
+import { Expert } from '@/types';
 
 async function getExperts(): Promise<Expert[]> {
   try {
-    const res = await fetch('http://localhost:4000/api/experts', {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/experts`, {
       cache: 'no-store',
     });
     if (!res.ok) {

@@ -18,7 +18,7 @@ async function getRecentSessions(): Promise<Session[]> {
 }
 
 export default async function Home() {
-  const sessions = await getSessions();
+  const sessions = await getRecentSessions();
 
   return (
     <main className={styles.main}>

@@ -1,0 +1,33 @@
+{
+  "name": "knowledge-platform",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Open Enterprise Knowledge Exchange Platform monorepo (frontend + backend)",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "npm-run-all --parallel dev:backend dev:frontend",
+    "dev:backend": "npm run dev --workspace backend",
+    "dev:frontend": "npm run dev --workspace frontend",
+    "build": "npm-run-all build:backend build:frontend",
+    "build:backend": "npm run build --workspace backend",
+    "build:frontend": "npm run build --workspace frontend",
+    "lint": "npm-run-all lint:backend lint:frontend",
+    "lint:backend": "npm run lint --workspace backend",
+    "lint:frontend": "npm run lint --workspace frontend",
+    "format": "npm-run-all format:backend format:frontend",
+    "format:backend": "npm run format --workspace backend",
+    "format:frontend": "npm run format --workspace frontend",
+    "test": "npm run test --workspace backend"
+  },
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "engines": {
+    "node": ">=18.18"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.5"
+  }
+}

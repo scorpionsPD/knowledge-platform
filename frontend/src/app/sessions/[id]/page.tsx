@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import styles from './page.module.css';
-import { Session } from '@/types';
+import { Session } from '../../types';
 
 async function getSession(id: string): Promise<Session | null> {
   try {

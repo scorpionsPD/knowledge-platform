@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import styles from './page.module.css';
-import { Expert } from '@/types';
+import { Expert } from '../types';
 
 async function getExperts(): Promise<Expert[]> {
   try {

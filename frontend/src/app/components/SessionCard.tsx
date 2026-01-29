@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import styles from './SessionCard.module.css';
-import { Session } from '@/types';
+import { Session } from '../../types';
 
 interface SessionCardProps {
   session: Session;

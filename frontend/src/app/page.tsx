@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import styles from './page.module.css';
 import SessionCard from './components/SessionCard';
-import { Session } from '@/types';
+import { Session } from '../types';
 
 async function getSessions(): Promise<Session[]> {
   try {

@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import SessionCard from '../components/SessionCard';
 import styles from './page.module.css';
-import { Session } from '@/types';
+import { Session } from '../types';
 
 async function getSessions(): Promise<Session[]> {
   try {

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import styles from './page.module.css';
-import { Session, Expert } from '@/types';
+import { Session, Expert } from '../../types';
 
 export default function AdminSessionsPage() {
   const [sessions, setSessions] = useState<Session[]>([]);

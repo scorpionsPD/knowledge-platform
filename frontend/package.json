@@ -4,10 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev -H ::",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start -H ::",
     "lint": "next lint",
-    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,mdx}\""
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,mdx}\"",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^5.9.1",

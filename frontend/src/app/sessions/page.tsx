@@ -1,11 +1,11 @@
 import { Suspense } from 'react';
 import SessionCard from '../components/SessionCard';
 import styles from './page.module.css';
-import { Session } from '../types';
+import { Session } from '@/types';
 
 async function getSessions(): Promise<Session[]> {
   try {
-    const res = await fetch('http://localhost:4000/api/sessions', {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/sessions`, {
       cache: 'no-store',
     });
     if (!res.ok) {

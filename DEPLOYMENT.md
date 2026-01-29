@@ -67,19 +67,34 @@ helm install knowledge-platform ./helm-chart \
 
 ### Option 3: Cloud Platforms
 
-#### Vercel (Frontend) + Railway (Backend + DB)
+#### Vercel (Frontend) + Render (Backend) + Supabase (DB)
 
 **Frontend (Vercel):**
-```bash
-cd frontend
-vercel --prod
-```
+- Set **Root Directory** to `frontend`
+- Build Command: `npm run build`
+- Install Command: `npm install`
+- Environment Variables:
+  - `NEXT_PUBLIC_API_URL=https://your-backend.onrender.com`
 
-**Backend (Railway):**
-1. Connect GitHub repository to Railway
-2. Add PostgreSQL database service
-3. Configure environment variables
-4. Deploy automatically on push to main
+**Backend (Render):**
+1. Create a Render **Web Service**
+2. Root Directory: `backend`
+3. Build Command:
+   ```bash
+   npm install && npm run prisma:generate && npm run build && npx prisma migrate deploy
+   ```
+4. Start Command:
+   ```bash
+   npm start
+   ```
+5. Environment Variables:
+   ```
+   DATABASE_URL=postgresql://postgres:[PASSWORD]@db.xxx.supabase.co:5432/postgres
+   SESSION_SECRET=<random-string>
+   FRONTEND_ORIGIN=https://your-frontend.vercel.app
+   NODE_ENV=production
+   AUTH_DISABLED=true
+   ```
 
 #### AWS (Full Stack)
 

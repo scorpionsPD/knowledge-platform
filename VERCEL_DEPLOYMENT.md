@@ -22,6 +22,7 @@
 1. Click "Add New..." → "Project"
 2. Find your repository: `scorpionsPD/knowledge-platform`
 3. Click "Import"
+4. Set **Production Branch** to `clean-main`
 
 ---
 
@@ -41,7 +42,7 @@ Add these in the "Environment Variables" section:
 NEXT_PUBLIC_API_URL=https://your-backend-url.com
 ```
 
-**Note**: You'll need to deploy your backend first (see Backend Deployment below), then come back and update this variable.
+**Note**: You'll need to deploy your backend first (see Backend Deployment below), then come back and update this variable. Avoid referencing non-existent secrets (set the URL directly if needed).
 
 ---
 
@@ -66,27 +67,7 @@ NEXT_PUBLIC_API_URL=https://your-backend-url.com
 
 Since Vercel is primarily for frontend, you need to deploy your backend separately:
 
-### Option A: Railway.app (Recommended - 15 min)
-
-1. **Sign up**: https://railway.app
-2. **New Project** → "Deploy from GitHub repo"
-3. **Select**: `scorpionsPD/knowledge-platform`
-4. **Root Directory**: `backend`
-5. **Add PostgreSQL**: Click "New" → "Database" → "PostgreSQL"
-6. **Environment Variables**:
-   ```
-   DATABASE_URL=${{Postgres.DATABASE_URL}}
-   SESSION_SECRET=your-random-secret-key-here
-   FRONTEND_ORIGIN=https://knowledge-platform-xyz.vercel.app
-   NODE_ENV=production
-   ```
-7. **Deploy**: Railway auto-deploys on push
-8. **Copy URL**: `https://your-app.up.railway.app`
-9. **Update Vercel**: Go back to Vercel → Settings → Environment Variables
-   - Update `NEXT_PUBLIC_API_URL` to your Railway backend URL
-   - Redeploy frontend
-
-### Option B: Render.com (Free Tier - 20 min)
+### Option A: Render.com (Free Tier - 20 min)
 
 1. **Sign up**: https://render.com
 2. **New** → "Web Service"
@@ -95,20 +76,32 @@ Since Vercel is primarily for frontend, you need to deploy your backend separate
    - Name: `knowledge-platform-backend`
    - Root Directory: `backend`
    - Environment: `Node`
-   - Build Command: `npm install && npx prisma generate && npx prisma migrate deploy`
+   - Build Command: `npm install && npm run prisma:generate && npm run build && npx prisma migrate deploy`
    - Start Command: `npm start`
 5. **Add PostgreSQL**:
-   - New → "PostgreSQL"
+   - Use Supabase (recommended) or Render Postgres
    - Copy Database URL
 6. **Environment Variables**:
    ```
-   DATABASE_URL=your-postgres-url
-   SESSION_SECRET=generate-random-string
+   DATABASE_URL=postgresql://postgres:[PASSWORD]@db.xxx.supabase.co:5432/postgres
+   SESSION_SECRET=your-random-secret-key-here
    FRONTEND_ORIGIN=https://knowledge-platform-xyz.vercel.app
    NODE_ENV=production
+   AUTH_DISABLED=true
    ```
 7. **Deploy**: Takes 5-10 minutes
-8. **Update Vercel** with backend URL
+8. **Copy URL**: `https://your-backend.onrender.com`
+9. **Update Vercel**: Go back to Vercel → Settings → Environment Variables
+   - Update `NEXT_PUBLIC_API_URL` to your Render backend URL
+   - Redeploy frontend
+
+### Option B: Railway.app (Alternate)
+
+Use Railway if you already have credits. Setup is similar to Render:
+- Root Directory: `backend`
+- Build: `npm install && npm run prisma:generate && npm run build && npx prisma migrate deploy`
+- Start: `npm start`
+- Env vars: `DATABASE_URL`, `SESSION_SECRET`, `FRONTEND_ORIGIN`, `NODE_ENV`, `AUTH_DISABLED`
 
 ### Option C: Heroku (Classic - 25 min)
 
@@ -206,38 +199,23 @@ Add your live demo URL to README.md:
 
 ## Continuous Deployment
 
-Both Vercel and Railway auto-deploy when you push to `main`:
+Both Vercel and Render auto-deploy when you push to `clean-main`:
 
 ```bash
 git add .
 git commit -m "Update feature"
-git push origin main
+git push origin clean-main
 ```
 
 ✅ Vercel rebuilds frontend automatically  
-✅ Railway/Render rebuilds backend automatically
+✅ Render rebuilds backend automatically
 
 ---
 
 ## Cost Estimate
 
 - **Vercel**: Free (100GB bandwidth, unlimited builds)
-- **Railway**: Free tier ($5 credit/month, ~500 hours)
 - **Render**: Free (spins down after 15min inactivity)
 - **Heroku**: $7/month for PostgreSQL, $5/month for web dyno
 
-**Recommended for portfolio**: Vercel (free) + Railway (free tier)
-
----
-
-## Next: Set Default Branch on GitHub
-
-To make `main` the default branch:
-
-1. Go to: https://github.com/scorpionsPD/knowledge-platform/settings/branches
-2. Under "Default branch", click the pencil icon
-3. Select `main` from dropdown
-4. Click "Update"
-5. Confirm the change
-
-This ensures anyone visiting your repo sees the clean history first!
+**Recommended for portfolio**: Vercel (free) + Render (free tier) + Supabase (free DB)

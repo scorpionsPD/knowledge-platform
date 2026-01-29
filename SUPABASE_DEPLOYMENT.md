@@ -1,7 +1,7 @@
-# Supabase + Vercel Deployment Guide (100% Free Forever)
+# Supabase + Vercel Deployment Guide (Free Tier Friendly)
 
 ## Why Supabase?
-- ✅ **Free forever** (500MB database, 2GB bandwidth)
+- ✅ Generous free tier (Postgres + dashboard)
 - ✅ PostgreSQL included (no separate database setup)
 - ✅ Auto-generated REST API
 - ✅ No cold starts
@@ -62,73 +62,38 @@
 
 ---
 
-## Part 2: Deploy Backend to Vercel (10 minutes)
+## Part 2: Deploy Backend to Render (Free Tier)
 
-Vercel can host both frontend AND backend (as API routes)!
+### Step 1: Sign Up for Render
 
-### Option A: Move Backend to Vercel Serverless Functions
+1. Go to https://render.com
+2. Click "Sign Up" → "Continue with GitHub"
+3. Authorize Render
 
-We'll create a single Vercel deployment with both:
-- Frontend: `/` 
-- Backend API: `/api/*`
+### Step 2: Create New Service
 
-**Quick setup:**
-
-1. Create `api` folder in root:
-   ```bash
-   cd /Users/pradeepdahiya/Documents/knowledge-platform
-   mkdir -p api
-   ```
-
-2. The backend will be deployed as serverless functions
-
-3. Update `vercel.json` to handle both frontend and API
-
-### Option B: Keep Backend Separate on Railway (Simpler)
-
-Use Railway's free trial for backend, Supabase for database only.
-
-**We'll go with Option B for simplicity.**
-
----
-
-## Part 3: Deploy Backend to Railway (Free Trial)
-
-### Step 1: Sign Up for Railway
-
-1. Go to https://railway.app
-2. Click "Login" → "Login with GitHub"
-3. Authorize Railway
-
-### Step 2: Create New Project
-
-1. Click "New Project"
-2. Select "Deploy from GitHub repo"
-3. Choose `scorpionsPD/knowledge-platform`
-4. Railway will detect your repo
+1. Click **New** → **Web Service**
+2. Select `scorpionsPD/knowledge-platform`
 
 ### Step 3: Configure Backend Service
 
-1. Click "Add variables" or go to "Variables" tab
-2. Add environment variables:
+1. Set **Root Directory**: `backend`
+2. Set **Build Command**:
+   ```bash
+   npm install && npm run prisma:generate && npm run build && npx prisma migrate deploy
+   ```
+3. Set **Start Command**:
+   ```bash
+   npm start
+   ```
+4. Add environment variables:
    ```
    DATABASE_URL=postgresql://postgres:[PASSWORD]@db.xxx.supabase.co:5432/postgres
    SESSION_SECRET=your-random-secret-key-here
    FRONTEND_ORIGIN=https://your-app.vercel.app
    NODE_ENV=production
-   PORT=4000
+   AUTH_DISABLED=true
    ```
-
-3. Set **Root Directory**:
-   - Go to Settings → "Root Directory"
-   - Enter: `backend`
-   - Save
-
-4. Set **Start Command**:
-   - Go to Settings → "Deploy"
-   - Start Command: `npm start`
-   - Build Command: `npm install && npx prisma generate && npx prisma migrate deploy`
-   - Save
 
 ### Step 4: Generate SESSION_SECRET
 
@@ -137,23 +102,17 @@ Run this in terminal:
 openssl rand -base64 32
 ```
 
-Copy the output and use it as `SESSION_SECRET` value in Railway.
+Copy the output and use it as `SESSION_SECRET` value in Render.
 
 ### Step 5: Deploy
 
 1. Click "Deploy"
 2. Wait 3-5 minutes for build
-3. Once done, click on your service
-4. Go to "Settings" → "Networking" → "Generate Domain"
-5. Copy your Railway URL (e.g., `https://knowledge-platform-production.up.railway.app`)
-
-### Step 6: Update CORS
-
-The backend will automatically use `FRONTEND_ORIGIN` for CORS.
+3. Copy your Render URL (e.g., `https://knowledge-platform-backend.onrender.com`)
 
 ---
 
-## Part 4: Connect Frontend to Backend
+## Part 3: Connect Frontend to Backend
 
 ### Step 1: Update Vercel Environment Variables
 
@@ -161,15 +120,15 @@ The backend will automatically use `FRONTEND_ORIGIN` for CORS.
 2. Settings → Environment Variables
 3. Add:
    ```
-   NEXT_PUBLIC_API_URL=https://your-railway-url.up.railway.app
+   NEXT_PUBLIC_API_URL=https://your-backend.onrender.com
    ```
 4. Click "Save"
 
-### Step 2: Update Railway FRONTEND_ORIGIN
+### Step 2: Update Render FRONTEND_ORIGIN
 
-1. Go back to Railway
+1. Go back to Render
 2. Update `FRONTEND_ORIGIN` variable to your actual Vercel URL
-3. Redeploy (Railway auto-redeploys on variable change)
+3. Redeploy (Render auto-redeploys on variable change)
 
 ### Step 3: Redeploy Frontend
 
@@ -179,19 +138,19 @@ The backend will automatically use `FRONTEND_ORIGIN` for CORS.
 
 ---
 
-## Part 5: Test Your Deployment
+## Part 4: Test Your Deployment
 
 ### Test Endpoints
 
 1. **Backend Health Check**:
    ```
-   https://your-railway-url.up.railway.app/api/health
+   https://your-backend.onrender.com/health
    ```
    Should return: `{"status":"ok"}`
 
 2. **Get Sessions**:
    ```
-   https://your-railway-url.up.railway.app/api/sessions
+   https://your-backend.onrender.com/api/sessions
    ```
    Should return JSON array
 
@@ -203,7 +162,7 @@ The backend will automatically use `FRONTEND_ORIGIN` for CORS.
 
 ---
 
-## Part 6: Add Sample Data (Optional)
+## Part 5: Add Sample Data (Optional)
 
 If tables are empty, add sample data via Supabase SQL Editor:
 
@@ -254,34 +213,27 @@ VALUES (
 ## Summary
 
 **What you have now:**
-- ✅ Frontend: Vercel (free forever)
-- ✅ Database: Supabase PostgreSQL (free forever)
-- ✅ Backend: Railway ($5 free credit, then ~$5/month)
+- ✅ Frontend: Vercel (free tier)
+- ✅ Database: Supabase PostgreSQL (free tier)
+- ✅ Backend: Render (free tier, sleeps when idle)
 
-**Cost breakdown:**
-- Months 1-2: **$0** (Railway free trial)
-- After trial: **~$5/month** (Railway only)
-- Supabase + Vercel: **$0 forever**
-
-**Alternative 100% Free Option:**
-After Railway trial ends, you can:
-1. Move backend to Vercel Serverless Functions (free)
-2. Or use Render free tier (with cold starts)
-3. Or keep Railway if you want to pay $5/month for better performance
+**Cost notes:**
+- Vercel + Supabase are free tier friendly
+- Render free tier sleeps after inactivity (expected for demo use)
 
 ---
 
 ## Environment Variables Checklist
 
-### Railway (Backend)
+### Render (Backend)
 - [ ] `DATABASE_URL` - From Supabase
 - [ ] `SESSION_SECRET` - Generate with `openssl rand -base64 32`
 - [ ] `FRONTEND_ORIGIN` - Your Vercel URL
 - [ ] `NODE_ENV=production`
-- [ ] `PORT=4000`
+- [ ] `AUTH_DISABLED=true` (optional for demo)
 
 ### Vercel (Frontend)
-- [ ] `NEXT_PUBLIC_API_URL` - Your Railway URL
+- [ ] `NEXT_PUBLIC_API_URL` - Your Render URL
 
 ### Supabase (Database)
 - [ ] Tables created via Prisma migrations
@@ -293,7 +245,7 @@ After Railway trial ends, you can:
 
 ### "Failed to fetch sessions"
 - Check `NEXT_PUBLIC_API_URL` is set in Vercel
-- Verify Railway backend is running (check logs)
+- Verify Render backend is running (check logs)
 - Test backend URL directly in browser
 
 ### "Database connection error"
@@ -302,11 +254,11 @@ After Railway trial ends, you can:
 - Ensure migrations ran: `npx prisma migrate deploy`
 
 ### "CORS error"
-- Update `FRONTEND_ORIGIN` in Railway to exact Vercel URL
+- Update `FRONTEND_ORIGIN` in Render to exact Vercel URL
 - No trailing slash in URL
-- Redeploy Railway after changing
+- Redeploy Render after changing
 
-### Backend not starting on Railway
+### Backend not starting on Render
 - Check build logs for errors
 - Verify Root Directory is set to `backend`
 - Ensure `package.json` has `"start": "node dist/index.js"`
@@ -322,7 +274,7 @@ After Railway trial ends, you can:
 
 **Your live URLs:**
 - Frontend: `https://your-app.vercel.app`
-- Backend: `https://your-railway-url.up.railway.app`
+- Backend: `https://your-backend.onrender.com`
 - Database: Managed by Supabase
-
-You now have a production-ready, mostly-free platform that will impress visa assessors! 🚀
+ 
+You now have a production-ready, mostly-free platform that is easy to demo.

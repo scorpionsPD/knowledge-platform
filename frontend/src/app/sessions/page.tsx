@@ -1,7 +1,6 @@
-import { Suspense } from 'react';
-import SessionCard from '../components/SessionCard';
 import styles from './page.module.css';
 import { Session } from '@/types';
+import SessionsClient from './SessionsClient';
 
 async function getSessions(): Promise<Session[]> {
   try {
@@ -34,11 +33,7 @@ export default async function SessionsPage() {
           <p style={{ fontSize: '0.875rem' }}>Check back later for upcoming knowledge sharing sessions</p>
         </div>
       ) : (
-        <div className={styles['sessions-grid']}>
-          {sessions.map((session) => (
-            <SessionCard key={session.id} session={session} />
-          ))}
-        </div>
+        <SessionsClient sessions={sessions} />
       )}
     </div>
   );

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import styles from './page.module.css';
 import SessionCard from './components/SessionCard';
 import { Session } from '@/types';
+import CopyApiButton from './components/CopyApiButton';
 
 async function getRecentSessions(): Promise<Session[]> {
   try {
@@ -40,6 +41,7 @@ export default async function Home() {
             <Link href="/experts" className={styles.secondaryButton}>
               View Experts
             </Link>
+            <CopyApiButton className={styles.tertiaryButton} />
           </div>
         </div>
       </section>

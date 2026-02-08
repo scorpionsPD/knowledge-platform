@@ -96,7 +96,8 @@
 }
 
 .primaryButton,
-.secondaryButton {
+.secondaryButton,
+.tertiaryButton {
   padding: 1rem 2.25rem;
   border-radius: 14px;
   font-size: 1.125rem;
@@ -104,6 +105,8 @@
   text-decoration: none;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-block;
+  border: none;
+  cursor: pointer;
 }
 
 .primaryButton {
@@ -128,6 +131,19 @@
   background: rgba(20, 26, 36, 0.85);
   border-color: rgba(255, 255, 255, 0.3);
   transform: translateY(-2px);
+}
+
+.tertiaryButton {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid rgba(34, 211, 238, 0.5);
+  box-shadow: 0 10px 22px rgba(34, 211, 238, 0.2);
+}
+
+.tertiaryButton:hover {
+  transform: translateY(-2px);
+  border-color: rgba(34, 211, 238, 0.8);
+  box-shadow: 0 16px 30px rgba(34, 211, 238, 0.3);
 }
 
 .features {
